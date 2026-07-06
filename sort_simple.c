@@ -43,6 +43,40 @@ static void	sort_three(t_env *env)
 		rra(env);
 }
 
+static void	push_min_to_b(t_env *env)
+{
+	int	min_pos;
+
+	while (env->size - env->top_a > 3)
+	{
+		min_pos = find_min_pos(env);
+		while (env->top_a != min_pos)
+		{
+			if (min_pos <= env->top_a + (env->size - env->top_a) / 2)
+				ra(env);
+			else
+				rra(env);
+			min_pos = find_min_pos(env);
+		}
+		pb(env);
+	}
+}
+
+static void	merge_back_to_a(t_env *env)
+{
+	while (env->top_b < env->size)
+	{
+		while (env->idx_a[env->top_a] < env->idx_b[env->top_b] 
+			&& env->idx_a[env->size - 1] > env->idx_a[env->top_a])
+			ra(env);
+		pa(env);
+		if (env->idx_a[env->top_a] > env->idx_a[env->top_a + 1])
+			sa(env);
+	}
+	while (env->idx_a[env->top_a] > env->idx_a[env->size - 1])
+		rra(env);
+}
+
 static void	sort_nearly_sorted(t_env *env)
 {
 	int	i;
@@ -58,42 +92,19 @@ static void	sort_nearly_sorted(t_env *env)
 			ra(env);
 		i++;
 	}
-	while (env->top_b < env->size)
-	{
-		while (env->idx_a[env->top_a] < env->idx_b[env->top_b] 
-			&& env->idx_a[env->size - 1] > env->idx_a[env->top_a])
-			ra(env);
-		pa(env);
-		if (env->idx_a[env->top_a] > env->idx_a[env->top_a + 1])
-			sa(env);
-	}
-	while (env->idx_a[env->top_a] > env->idx_a[env->size - 1])
-		rra(env);
+	merge_back_to_a(env);
 }
 
 void	sort_simple(t_env *env)
 {
 	int	count;
-	int	min_pos;
 
 	count = env->size - env->top_a;
 	if (count <= 5)
 	{
 		if (count == 2 && env->arr_a[env->top_a] > env->arr_a[env->top_a + 1])
 			sa(env);
-		while (env->size - env->top_a > 3)
-		{
-			min_pos = find_min_pos(env);
-			while (env->top_a != min_pos)
-			{
-				if (min_pos <= env->top_a + (env->size - env->top_a) / 2)
-					ra(env);
-				else
-					rra(env);
-				min_pos = find_min_pos(env);
-			}
-			pb(env);
-		}
+		push_min_to_b(env);
 		sort_three(env);
 		while (env->top_b < env->size)
 			pa(env);
