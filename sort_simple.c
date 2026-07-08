@@ -62,37 +62,25 @@ static void	push_min_to_b(t_env *env)
 	}
 }
 
-static void	merge_back_to_a(t_env *env)
+static void	sort_large_selection(t_env *env)
 {
+	int	min_pos;
+
+	while (env->top_a < env->size)
+	{
+		min_pos = find_min_pos(env);
+		while (env->top_a != min_pos)
+		{
+			if (min_pos <= env->top_a + (env->size - env->top_a) / 2)
+				ra(env);
+			else
+				rra(env);
+			min_pos = find_min_pos(env);
+		}
+		pb(env);
+	}
 	while (env->top_b < env->size)
-	{
-		while (env->idx_a[env->top_a] < env->idx_b[env->top_b] 
-			&& env->idx_a[env->size - 1] > env->idx_a[env->top_a])
-			ra(env);
 		pa(env);
-		if (env->idx_a[env->top_a] > env->idx_a[env->top_a + 1])
-			sa(env);
-	}
-	while (env->idx_a[env->top_a] > env->idx_a[env->size - 1])
-		rra(env);
-}
-
-static void	sort_nearly_sorted(t_env *env)
-{
-	int	i;
-	int	initial_count;
-
-	initial_count = env->size - env->top_a;
-	i = 0;
-	while (i < initial_count - 1)
-	{
-		if (env->idx_a[env->top_a] > env->idx_a[env->top_a + 1])
-			pb(env);
-		else
-			ra(env);
-		i++;
-	}
-	merge_back_to_a(env);
 }
 
 void	sort_simple(t_env *env)
@@ -110,5 +98,5 @@ void	sort_simple(t_env *env)
 			pa(env);
 	}
 	else
-		sort_nearly_sorted(env);
+		sort_large_selection(env);
 }
